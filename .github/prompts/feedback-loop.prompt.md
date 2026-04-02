@@ -1,5 +1,5 @@
 ---
-agent: "agent"
+mode: "agent"
 description: "Verify recent changes — build, lint, test — and update agent memory with learnings"
 ---
 

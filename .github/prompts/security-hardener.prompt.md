@@ -1,5 +1,5 @@
 ---
-agent: "agent"
+mode: "agent"
 description: "Security audit — find vulnerabilities and recommend fixes"
 ---
 

@@ -1,5 +1,5 @@
 ---
-agent: "agent"
+mode: "agent"
 description: "Pre-submit self-review — audit changes before creating a PR"
 ---
 

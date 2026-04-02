@@ -1,5 +1,5 @@
 ---
-agent: "agent"
+mode: "agent"
 description: "Find quick performance wins and code cleanup opportunities"
 ---
 

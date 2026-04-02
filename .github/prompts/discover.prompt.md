@@ -1,5 +1,5 @@
 ---
-agent: "agent"
+mode: "agent"
 description: "Explore a new project and fill .agent/MEMORY.md with discovered context"
 ---
 

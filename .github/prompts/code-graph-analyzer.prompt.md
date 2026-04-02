@@ -1,5 +1,5 @@
 ---
-agent: "agent"
+mode: "agent"
 description: "Analyze dependency graph — trace connections, blast radius, and detect code smells"
 ---
 
