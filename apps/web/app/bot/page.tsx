@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Save, MessageSquare, User, Bot as BotIcon, ChevronDown, ChevronUp, Globe, Mic, Volume2, ExternalLink } from "lucide-react";
+import { useState, useRef } from "react";
+import { Save, MessageSquare, User, Bot as BotIcon, ChevronDown, ChevronUp, Globe, Mic, Volume2, ExternalLink, Play, Square, Loader2, MicOff } from "lucide-react";
 import { BackofficeShell } from "../../components/BackofficeShell";
 import { LANGUAGES, BotLanguage } from "../../context/DataContext";
 
@@ -117,6 +117,19 @@ export default function BotPage() {
   const [tone, setTone] = useState("formal");
   const [savedAt, setSavedAt] = useState("");
   const [expandedConvo, setExpandedConvo] = useState<string | null>(null);
+  
+  // Voice test states
+  const [isPlayingTTS, setIsPlayingTTS] = useState(false);
+  const [ttsError, setTtsError] = useState("");
+  const [testText, setTestText] = useState("Hola, soy el asistente de CondoControl. ¿En qué puedo ayudarte hoy?");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // STT states
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcription, setTranscription] = useState("");
+  const [sttError, setSttError] = useState("");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const onSave = () => {
     setSavedAt(new Date().toLocaleTimeString("es-MX"));
@@ -124,6 +137,126 @@ export default function BotPage() {
 
   const toggleConvo = (id: string) => {
     setExpandedConvo((prev) => (prev === id ? null : id));
+  };
+
+  // TTS Test function
+  const testTTS = async () => {
+    if (isPlayingTTS) {
+      // Stop playing
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      setIsPlayingTTS(false);
+      return;
+    }
+
+    setIsPlayingTTS(true);
+    setTtsError("");
+
+    try {
+      const response = await fetch("/api/voice/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: testText,
+          voiceId: selectedVoice,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error generando audio");
+      }
+
+      // Check if it's demo mode (JSON response) or actual audio
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
+        const data = await response.json();
+        if (data.demo) {
+          setTtsError(data.message);
+          setIsPlayingTTS(false);
+          return;
+        }
+      }
+
+      // Play audio
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsPlayingTTS(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      audio.onerror = () => {
+        setTtsError("Error reproduciendo audio");
+        setIsPlayingTTS(false);
+      };
+
+      await audio.play();
+    } catch (error) {
+      console.error("TTS test error:", error);
+      setTtsError(error instanceof Error ? error.message : "Error de conexión");
+      setIsPlayingTTS(false);
+    }
+  };
+
+  // STT Recording functions
+  const startRecording = async () => {
+    try {
+      setSttError("");
+      setTranscription("");
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        stream.getTracks().forEach((track) => track.stop());
+        
+        // Send to STT API
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "recording.webm");
+        formData.append("language", defaultLanguage);
+
+        try {
+          const response = await fetch("/api/voice/stt", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+          if (result.error && !result.demo) {
+            setSttError(result.error);
+          } else {
+            setTranscription(result.text);
+          }
+        } catch (error) {
+          setSttError("Error enviando audio");
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error("Recording error:", error);
+      setSttError("No se pudo acceder al micrófono");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
   return (
@@ -188,6 +321,39 @@ export default function BotPage() {
             <span><Mic size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />Speech-to-Text (STT) — Transcribir mensajes de voz</span>
           </label>
 
+          {/* STT Test Section */}
+          {sttEnabled && (
+            <div className="stt-test-section">
+              <div className="stt-test-controls">
+                <button
+                  className={`voice-test-btn ${isRecording ? "voice-test-btn--recording" : ""}`}
+                  onClick={isRecording ? stopRecording : startRecording}
+                  type="button"
+                >
+                  {isRecording ? (
+                    <>
+                      <MicOff size={14} />
+                      Detener grabación
+                    </>
+                  ) : (
+                    <>
+                      <Mic size={14} />
+                      Probar STT (grabar)
+                    </>
+                  )}
+                </button>
+                {isRecording && <span className="recording-indicator">Grabando...</span>}
+              </div>
+              {transcription && (
+                <div className="stt-result">
+                  <span className="stt-label">Transcripción:</span>
+                  <p className="stt-text">{transcription}</p>
+                </div>
+              )}
+              {sttError && <p className="voice-error">{sttError}</p>}
+            </div>
+          )}
+
           <label className="toggle-row">
             <input
               type="checkbox"
@@ -238,6 +404,38 @@ export default function BotPage() {
                   </optgroup>
                 </select>
               </label>
+              
+              {/* TTS Test Section */}
+              <div className="voice-test-section">
+                <label className="field">
+                  <span>Probar voz (TTS)</span>
+                  <textarea
+                    value={testText}
+                    onChange={(e) => setTestText(e.target.value)}
+                    rows={2}
+                    placeholder="Escribe el texto para probar la voz..."
+                  />
+                </label>
+                <button 
+                  className={`voice-test-btn ${isPlayingTTS ? "voice-test-btn--active" : ""}`}
+                  onClick={testTTS}
+                  type="button"
+                >
+                  {isPlayingTTS ? (
+                    <>
+                      <Square size={14} />
+                      Detener
+                    </>
+                  ) : (
+                    <>
+                      <Play size={14} />
+                      Reproducir
+                    </>
+                  )}
+                </button>
+                {ttsError && <p className="voice-error">{ttsError}</p>}
+              </div>
+
               <a
                 href="https://elevenlabs.io/voice-library"
                 target="_blank"

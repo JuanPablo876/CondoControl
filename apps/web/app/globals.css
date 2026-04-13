@@ -629,6 +629,130 @@ html[data-theme="dark"] .status-pill--warning {
   color: var(--brand-hover);
 }
 
+/* Voice Test Sections */
+.voice-test-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.voice-test-section textarea {
+  resize: none;
+  min-height: 60px;
+}
+
+.voice-test-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--brand);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: fit-content;
+}
+
+.voice-test-btn:hover {
+  background: var(--brand-hover);
+}
+
+.voice-test-btn--active {
+  background: var(--danger);
+}
+
+.voice-test-btn--active:hover {
+  background: #ff8085;
+}
+
+.voice-test-btn--recording {
+  background: var(--danger);
+  animation: pulse-recording 1.5s infinite;
+}
+
+@keyframes pulse-recording {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.voice-error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* STT Test Section */
+.stt-test-section {
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stt-test-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.recording-indicator::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+  animation: pulse-recording 1s infinite;
+}
+
+.stt-result {
+  padding: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.stt-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.stt-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
 /* ---- Bot welcome grid ---- */
 
 .bot-welcome-grid {
