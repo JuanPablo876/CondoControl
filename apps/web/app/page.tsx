@@ -2,13 +2,12 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, Building2, LockKeyhole, LogIn } from "lucide-react";
+import { BadgeCheck, Building2, LockKeyhole, LogIn, Mail, X, ArrowLeft, CheckCircle } from "lucide-react";
 
 type UserSession = {
   email: string;
   name: string;
 };
-
 
 const SESSION_KEY = "condocontrol.session";
 const ADMIN_EMAIL = "admin@condocontrol.com";
@@ -19,6 +18,12 @@ export default function HomePage() {
   const [email, setEmail] = useState("admin@condocontrol.com");
   const [password, setPassword] = useState("123456");
   const [loginError, setLoginError] = useState<string>("");
+  
+  // Forgot password state
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [recoverySent, setRecoverySent] = useState(false);
+  const [recoveryError, setRecoveryError] = useState("");
 
   useEffect(() => {
     const storedSession = window.localStorage.getItem(SESSION_KEY);
@@ -64,6 +69,28 @@ export default function HomePage() {
     router.push("/dashboard");
   };
 
+  const onForgotPassword = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setRecoveryError("");
+    
+    if (!recoveryEmail || !recoveryEmail.includes("@")) {
+      setRecoveryError("Ingresa un correo válido");
+      return;
+    }
+    
+    // Simulate sending recovery email
+    setTimeout(() => {
+      setRecoverySent(true);
+    }, 800);
+  };
+
+  const closeForgotPassword = () => {
+    setShowForgotPassword(false);
+    setRecoveryEmail("");
+    setRecoverySent(false);
+    setRecoveryError("");
+  };
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -98,7 +125,7 @@ export default function HomePage() {
           </label>
 
           <label className="field">
-            <span>Contrasena</span>
+            <span>Contraseña</span>
             <input
               type="password"
               placeholder="********"
@@ -107,6 +134,14 @@ export default function HomePage() {
               required
             />
           </label>
+
+          <button 
+            type="button" 
+            className="forgot-password-link"
+            onClick={() => setShowForgotPassword(true)}
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
 
           <button className="primary-button" type="submit">
             <LogIn size={16} />
@@ -121,6 +156,77 @@ export default function HomePage() {
           {loginError ? <p className="error-text">{loginError}</p> : null}
         </form>
       </section>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="modal-overlay" onClick={closeForgotPassword}>
+          <div className="modal-content forgot-password-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeForgotPassword}>
+              <X size={20} />
+            </button>
+            
+            {!recoverySent ? (
+              <>
+                <div className="modal-header">
+                  <Mail size={24} />
+                  <h2>Recuperar contraseña</h2>
+                </div>
+                <p className="muted">
+                  Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.
+                </p>
+                
+                <form className="form-grid" onSubmit={onForgotPassword}>
+                  <label className="field">
+                    <span>Correo electrónico</span>
+                    <input
+                      type="email"
+                      placeholder="tu@correo.com"
+                      value={recoveryEmail}
+                      onChange={(e) => setRecoveryEmail(e.target.value)}
+                      autoFocus
+                      required
+                    />
+                  </label>
+                  
+                  {recoveryError && <p className="error-text">{recoveryError}</p>}
+                  
+                  <button className="primary-button" type="submit">
+                    <Mail size={16} />
+                    Enviar instrucciones
+                  </button>
+                  
+                  <button 
+                    className="secondary-button" 
+                    type="button" 
+                    onClick={closeForgotPassword}
+                  >
+                    <ArrowLeft size={16} />
+                    Volver al login
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div className="recovery-success">
+                <div className="success-icon">
+                  <CheckCircle size={48} />
+                </div>
+                <h2>¡Correo enviado!</h2>
+                <p className="muted">
+                  Hemos enviado las instrucciones de recuperación a <strong>{recoveryEmail}</strong>. 
+                  Revisa tu bandeja de entrada y sigue los pasos indicados.
+                </p>
+                <button 
+                  className="primary-button" 
+                  type="button" 
+                  onClick={closeForgotPassword}
+                >
+                  Volver al login
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

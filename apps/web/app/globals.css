@@ -3636,3 +3636,379 @@ html:not([data-theme="dark"]) .convo-item {
     align-items: center;
   }
 }
+
+/* ================================================================
+   Forgot Password — Login Page
+   ================================================================ */
+
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: var(--brand);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  margin-top: -8px;
+  transition: color 0.15s;
+}
+
+.forgot-password-link:hover {
+  color: var(--brand-hover);
+  text-decoration: underline;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fade-in 0.15s ease-out;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+  animation: rise-in 0.2s ease-out;
+}
+
+html:not([data-theme="dark"]) .modal-content {
+  background: #ffffff;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+  background: var(--card-hover);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--brand);
+  margin-bottom: 12px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.forgot-password-modal .form-grid {
+  margin-top: 20px;
+}
+
+/* Recovery Success */
+.recovery-success {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.recovery-success .success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(39, 166, 68, 0.12);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.recovery-success h2 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  color: var(--text-primary);
+}
+
+.recovery-success .muted {
+  margin-bottom: 24px;
+}
+
+.recovery-success .primary-button {
+  width: 100%;
+}
+
+/* ================================================================
+   Settings Page — Enhanced
+   ================================================================ */
+
+/* Tabs */
+.settings-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  width: fit-content;
+}
+
+.settings-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.settings-tab:hover {
+  color: var(--text-primary);
+  background: var(--card-hover);
+}
+
+.settings-tab--active {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="dark"] .settings-tab--active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Sections */
+.settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settings-section {
+  padding: 24px;
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: var(--brand);
+}
+
+.settings-section-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-section--info {
+  background: rgba(94, 106, 210, 0.06);
+  border-color: rgba(94, 106, 210, 0.15);
+}
+
+/* Toggle Row Enhanced */
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.toggle-row:last-of-type {
+  border-bottom: none;
+}
+
+.toggle-row input[type="checkbox"] {
+  margin-top: 2px;
+}
+
+.toggle-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.toggle-content > svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.toggle-content > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-content span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.toggle-content small {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Settings Actions */
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+/* Success/Error Messages */
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--success);
+  animation: fade-in 0.2s ease-out;
+}
+
+.success-message-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(39, 166, 68, 0.12);
+  border: 1px solid rgba(39, 166, 68, 0.3);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--success);
+  animation: fade-in 0.2s ease-out;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(229, 72, 77, 0.12);
+  border: 1px solid rgba(229, 72, 77, 0.3);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--danger);
+  animation: fade-in 0.2s ease-out;
+}
+
+/* Password Input Wrapper */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 44px;
+  width: 100%;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.password-toggle:hover {
+  color: var(--text-primary);
+}
+
+/* Security Info */
+.security-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.security-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.security-info-item:last-child {
+  border-bottom: none;
+}
+
+.security-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.security-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Settings Responsive */
+@media (max-width: 640px) {
+  .settings-tabs {
+    width: 100%;
+  }
+  
+  .settings-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 12px 14px;
+  }
+  
+  .settings-section {
+    padding: 20px 16px;
+  }
+  
+  .toggle-content {
+    flex-direction: column;
+  }
+  
+  .toggle-content > svg {
+    display: none;
+  }
+}
