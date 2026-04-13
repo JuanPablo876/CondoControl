@@ -1,0 +1,16 @@
+{
+  "name": "condocontrol",
+  "private": true,
+  "packageManager": "pnpm@8.15.9",
+  "scripts": {
+    "preinstall": "node -e \"const ua = process.env.npm_config_user_agent || ''; if (!ua.includes('pnpm')) { console.error('Este proyecto usa pnpm workspaces. Ejecuta: pnpm install'); process.exit(1); }\"",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.14",
+    "typescript": "^5.6.3"
+  }
+}

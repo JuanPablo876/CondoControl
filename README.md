@@ -1,77 +1,115 @@
-# Agent Setup Template
+# CondoControl
 
-Template de configuración para asistentes de IA (GitHub Copilot, Claude Code, etc.) con instrucciones, prompts y memoria de agente.
+Plataforma de backoffice para administracion de renta en condominios y propiedades.
 
-## Cómo Usar
+## Estado actual
 
-1. Copiar los archivos a tu proyecto:
-   ```bash
-   # Desde la raíz de tu nuevo proyecto:
-   cp -r /path/to/agent-setup-template/.github .
-   cp -r /path/to/agent-setup-template/.agent .
-   cp -r /path/to/agent-setup-template/.vscode .
-   cp /path/to/agent-setup-template/CLAUDE.md .
-   cp /path/to/agent-setup-template/.gitignore .  # solo si no tienes uno
-   ```
-
-2. Personalizar `CLAUDE.md` si necesitas cambiar el stack o convenciones
-
-3. En VS Code, abrir Copilot Chat y correr `/discover` para que el agente explore y llene `.agent/MEMORY.md`
+Este repositorio ya incluye un scaffold funcional de monorepo con:
+- API para salud, recordatorios y recepcion de pagos bancarios
+- Orquestador de recordatorios por email, WhatsApp y llamadas
+- Integracion base para OpenRouter, Twilio, Baileys y ElevenLabs
+- Tipos de dominio compartidos en paquete reutilizable
+- Repositorio de datos configurable: memoria, SQLite local o Postgres/Supabase
 
 ## Estructura
 
 ```
-├── CLAUDE.md                          # Preferencias generales de IA
-├── .agent/
-│   ├── README.md                      # Explica el sistema de memoria
-│   └── MEMORY.md                      # Canvas en blanco — el agente lo llena
-├── .github/
-│   ├── copilot-instructions.md        # Instrucciones para GitHub Copilot
-│   ├── instructions/                  # Instrucciones por tipo de archivo
-│   │   ├── api-routes.instructions.md       # → **/app/api/**/route.ts
-│   │   ├── react-components.instructions.md # → **/*.tsx
-│   │   ├── prisma-schema.instructions.md    # → **/prisma/schema.prisma
-│   │   └── middleware.instructions.md       # → **/middleware.ts
-│   └── prompts/                       # Prompts ejecutables (/nombre)
-│       ├── discover.prompt.md         # Explorar proyecto, llenar MEMORY.md
-│       ├── feedback-loop.prompt.md    # Verificar cambios + aprender
-│       ├── pr-review.prompt.md        # Self-review antes de crear PR
-│       ├── code-graph-analyzer.prompt.md  # Analizar dependencias
-│       ├── quick-optimizer.prompt.md  # Encontrar optimizaciones rápidas
-│       └── security-hardener.prompt.md    # Auditoría de seguridad
-└── .vscode/
-    └── settings.json                  # Wiring de Copilot
+.
+├── apps/
+│   └── api/                        # API de backoffice + motores de recordatorio
+│   └── web/                        # App Next.js para login, dashboard y settings
+├── packages/
+│   └── shared-types/               # Tipos de dominio compartidos
+├── docs/
+│   └── architecture.md             # Arquitectura y recomendaciones de integracion
+├── .env.example                    # Variables de entorno base
+├── turbo.json
+├── pnpm-workspace.yaml
+└── package.json
 ```
 
-## Qué Incluye
+## Requisitos
 
-### Instrucciones por Archivo (`.github/instructions/`)
-Se aplican automáticamente cuando Copilot trabaja en archivos que coinciden con el patrón `applyTo`. No necesitas invocarlos manualmente.
+- Node.js 20+
+- pnpm 8+
 
-### Prompts Ejecutables (`.github/prompts/`)
-Se invocan desde Copilot Chat escribiendo `/nombre-del-prompt`:
+## Inicio rapido
 
-| Prompt | Qué Hace |
-|--------|----------|
-| `/discover` | Explora el proyecto y llena MEMORY.md |
-| `/feedback-loop` | Verifica cambios (build, lint, test) y registra aprendizajes |
-| `/pr-review` | Self-review estructurado antes de crear un PR |
-| `/code-graph-analyzer` | Analiza grafo de dependencias y blast radius |
-| `/quick-optimizer` | Encuentra dead code, duplicados, N+1 queries |
-| `/security-hardener` | Auditoría de seguridad enfocada |
+```bash
+pnpm install
+cp .env.example .env
+pnpm dev
+```
 
-### Memoria del Agente (`.agent/`)
-Canvas en blanco que el agente llena conforme trabaja. Persiste entre sesiones. No incluye datos del template — solo del proyecto donde se usa.
+API disponible en `http://localhost:4000`.
+Web disponible en `http://localhost:3000`.
 
-## Compatibilidad
+## Si aparece error con npm install
 
-- **GitHub Copilot** (VS Code): Lee `.github/copilot-instructions.md`, `instructions/`, `prompts/`, y `CLAUDE.md` via `settings.json`
-- **Claude Code**: Lee `CLAUDE.md` y `.agent/MEMORY.md`
-- **Otros agentes**: Pueden leer `CLAUDE.md` como instrucciones generales
+Este monorepo usa `pnpm` (no `npm`).
 
-## Personalización
+Usa siempre:
 
-- Editar `CLAUDE.md` para cambiar stack, convenciones, o preferencias de idioma
-- Agregar más archivos `.instructions.md` para otros tipos de archivo
-- Agregar más archivos `.prompt.md` para nuevos workflows
-- `.agent/MEMORY.md` se llena solo — no editarlo manualmente (a menos que quieras limpiarlo)
+```bash
+pnpm install
+```
+
+Si ya corriste `npm install` y quedo en estado inconsistente, limpia e instala de nuevo con pnpm:
+
+```bash
+Remove-Item -Recurse -Force node_modules
+pnpm install
+```
+
+## Modos de base de datos
+
+### 1) Demo instantaneo (sin DB)
+```bash
+DB_PROVIDER=memory
+```
+
+### 2) Local SQLite (persistencia local)
+```bash
+DB_PROVIDER=sqlite
+SQLITE_FILE_PATH=./data/condocontrol.sqlite
+```
+
+### 3) Local Postgres o Supabase (recomendado)
+```bash
+DB_PROVIDER=postgres
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/condocontrol
+# o usar directamente Supabase
+SUPABASE_DB_URL=postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+```
+
+## Endpoints actuales
+
+- `GET /health`
+- `POST /api/reminders/run-due-check`
+- `POST /api/payments/:paymentId/bind-external`
+- `POST /api/payments/webhooks/payment-settled`
+
+Ejemplo webhook de banco:
+
+```json
+{
+    "externalPaymentId": "bank_tx_001",
+    "settledAt": "2026-04-12T10:30:00.000Z"
+}
+```
+
+## Flujo funcional
+
+1. Detectar pagos pendientes.
+2. Redactar mensaje con OpenRouter (o fallback local).
+3. Enviar por email y WhatsApp.
+4. Si el pago esta en mora, escalar a llamada automatizada.
+5. Al llegar webhook bancario, marcar `settled` y evitar nuevos recordatorios.
+
+## Siguiente fase recomendada
+
+- Reemplazar repositorio en memoria por PostgreSQL + Prisma.
+- Implementar backoffice web en Next.js App Router.
+- Agregar auth RBAC con herencia de roles (`hasRole`).
+- Implementar idempotencia y firma HMAC en webhooks bancarios.
+- Persistir intentos de recordatorio para trazabilidad y reporting.
