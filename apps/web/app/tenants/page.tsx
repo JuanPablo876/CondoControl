@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, LinkIcon, X, Users, Home, Mail, Phone, Globe, Calendar, Clock } from "lucide-react";
+import { Plus, LinkIcon, X, Users, Home, Mail, Phone, Globe, Calendar, Clock, Eye } from "lucide-react";
 import { BackofficeShell } from "../../components/BackofficeShell";
 import { useData, Tenant, BotLanguage, LANGUAGES, getContractEndDate, getContractMonthsRemaining } from "../../context/DataContext";
+import Link from "next/link";
 
 function statusClass(status: string) {
   if (status === "Al dia") return "status-pill status-pill--success";
@@ -199,12 +200,18 @@ export default function TenantsPage() {
                   <td>{LANGUAGES.find((l) => l.value === tenant.language)?.label ?? "Español"}</td>
                   <td><span className={statusClass(tenant.status)}>{tenant.status}</span></td>
                   <td>
-                    {!tenant.unitId && (
-                      <button className="table-action" type="button" onClick={(e) => { e.stopPropagation(); setSelectedUnit(""); setShowAssign(tenant.id); }}>
-                        <LinkIcon size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
-                        Asignar unidad
-                      </button>
-                    )}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Link href={`/tenants/${tenant.id}`} className="table-action" onClick={(e) => e.stopPropagation()}>
+                        <Eye size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                        Ver
+                      </Link>
+                      {!tenant.unitId && (
+                        <button className="table-action" type="button" onClick={(e) => { e.stopPropagation(); setSelectedUnit(""); setShowAssign(tenant.id); }}>
+                          <LinkIcon size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                          Asignar unidad
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

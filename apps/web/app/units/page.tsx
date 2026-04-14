@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Plus, LinkIcon, Unlink, Home, X, Mail, Phone, User, MapPin, DollarSign, Image, Building, Bed, Bath, Car, Trees, Ruler, Upload, Trash2 } from "lucide-react";
+import { Plus, LinkIcon, Unlink, Home, X, Mail, Phone, User, MapPin, DollarSign, Image, Building, Bed, Bath, Car, Trees, Ruler, Upload, Trash2, Eye } from "lucide-react";
 import { BackofficeShell } from "../../components/BackofficeShell";
 import { useData, Unit, UnitType, UNIT_TYPES, getRequiredFields, getOptionalFields } from "../../context/DataContext";
+import Link from "next/link";
 
 function statusClass(status: string) {
   if (status === "Ocupada") return "status-pill status-pill--success";
@@ -322,17 +323,23 @@ export default function UnitsPage() {
                   <td>{getTenantName(unit.tenantId)}</td>
                   <td><span className={statusClass(unit.status)}>{unit.status}</span></td>
                   <td>
-                    {unit.tenantId ? (
-                      <button className="table-action" type="button" onClick={(e) => { e.stopPropagation(); unassignUnit(unit.id); }}>
-                        <Unlink size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
-                        Desasignar
-                      </button>
-                    ) : unit.status !== "Mantenimiento" ? (
-                      <button className="table-action" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTenant(""); setShowAssign(unit.id); }}>
-                        <LinkIcon size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
-                        Asignar
-                      </button>
-                    ) : null}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Link href={`/units/${unit.id}`} className="table-action" onClick={(e) => e.stopPropagation()}>
+                        <Eye size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                        Ver
+                      </Link>
+                      {unit.tenantId ? (
+                        <button className="table-action" type="button" onClick={(e) => { e.stopPropagation(); unassignUnit(unit.id); }}>
+                          <Unlink size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                          Desasignar
+                        </button>
+                      ) : unit.status !== "Mantenimiento" ? (
+                        <button className="table-action" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTenant(""); setShowAssign(unit.id); }}>
+                          <LinkIcon size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                          Asignar
+                        </button>
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               ))}

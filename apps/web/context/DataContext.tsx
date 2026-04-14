@@ -135,6 +135,8 @@ type DataContextType = {
   tenants: Tenant[];
   addUnit: (unit: Omit<Unit, "id" | "tenantId" | "status">) => void;
   addTenant: (tenant: Omit<Tenant, "id" | "unitId" | "status">) => void;
+  deleteUnit: (unitId: string) => void;
+  deleteTenant: (tenantId: string) => void;
   updateTenantLanguage: (tenantId: string, language: BotLanguage) => void;
   assignTenantToUnit: (tenantId: string, unitId: string) => void;
   unassignUnit: (unitId: string) => void;
@@ -284,6 +286,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const deleteUnit = (unitId: string) => {
+    // First unassign any tenant from this unit
+    const unit = units.find(u => u.id === unitId);
+    if (unit?.tenantId) {
+      setTenants((prev) =>
+        prev.map((t) => (t.unitId === unitId ? { ...t, unitId: null } : t))
+      );
+    }
+    // Then delete the unit
+    setUnits((prev) => prev.filter((u) => u.id !== unitId));
+  };
+
+  const deleteTenant = (tenantId: string) => {
+    // First unassign from any unit
+    const tenant = tenants.find(t => t.id === tenantId);
+    if (tenant?.unitId) {
+      setUnits((prev) =>
+        prev.map((u) => (u.id === tenant.unitId ? { ...u, tenantId: null, status: "Vacante" as UnitStatus } : u))
+      );
+    }
+    // Then delete the tenant
+    setTenants((prev) => prev.filter((t) => t.id !== tenantId));
+  };
+
   const getTenantName = (tenantId: string | null) => {
     if (!tenantId) return "—";
     return tenants.find((t) => t.id === tenantId)?.name ?? "—";
@@ -306,6 +332,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         tenants,
         addUnit,
         addTenant,
+        deleteUnit,
+        deleteTenant,
         updateTenantLanguage,
         assignTenantToUnit,
         unassignUnit,
